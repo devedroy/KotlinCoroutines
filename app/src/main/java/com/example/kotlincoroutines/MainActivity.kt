@@ -3,34 +3,31 @@ package com.example.kotlincoroutines
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import com.example.kotlincoroutines.databinding.ActivityMainBinding
+import kotlinx.coroutines.*
 
 class MainActivity : AppCompatActivity() {
+
+    lateinit var binding: ActivityMainBinding
 
     val TAG = "MainActivity"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        GlobalScope.launch {
+        GlobalScope.launch(Dispatchers.IO) {
+            Log.d(TAG, "Starting coroutine in thread ${Thread.currentThread().name}")
             val networkCallAnswer = doNetworkCall()
-            val networkCallAnswer2 = doNetworkCall2()
-
-            Log.d(TAG, networkCallAnswer)
-            Log.d(TAG, networkCallAnswer2)
+            withContext(Dispatchers.Main) {
+                Log.d(TAG, "Setting text in thread ${Thread.currentThread().name}")
+                binding.tv.text = networkCallAnswer
+            }
         }
-
     }
 
     private suspend fun doNetworkCall(): String {
         delay(3000L)
         return "This is the answer."
-    }
-
-    private suspend fun doNetworkCall2(): String {
-        delay(3000L)
-        return "This is the answer 2."
     }
 }
