@@ -16,18 +16,20 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        GlobalScope.launch(Dispatchers.IO) {
-            Log.d(TAG, "Starting coroutine in thread ${Thread.currentThread().name}")
-            val networkCallAnswer = doNetworkCall()
-            withContext(Dispatchers.Main) {
-                Log.d(TAG, "Setting text in thread ${Thread.currentThread().name}")
-                binding.tv.text = networkCallAnswer
+        Log.d(TAG, "Before runBlocking")
+        runBlocking {
+            Log.d(TAG, "Start of runBlocking")
+            launch(Dispatchers.IO) {
+                delay(3000L)
+                Log.d(TAG, "Finished IO coroutine 1")
             }
+            launch(Dispatchers.IO) {
+                delay(3000L)
+                Log.d(TAG, "Finished IO coroutine 2")
+            }
+            delay(5000L)
+            Log.d(TAG, "End of runBlocking")
         }
-    }
-
-    private suspend fun doNetworkCall(): String {
-        delay(3000L)
-        return "This is the answer."
+        Log.d(TAG, "After runBlocking")
     }
 }
